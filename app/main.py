@@ -3,7 +3,13 @@ from typing import Optional
 from datetime import date
 from pydantic import BaseModel
 
+from app.bookings.router import router as router_bookings
+
+#result.mappings().all()
+
 app = FastAPI()
+
+app.include_router(router_bookings)
 
 
 class HotelsSearchArgs:
