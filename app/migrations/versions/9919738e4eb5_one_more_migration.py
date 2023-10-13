@@ -1,8 +1,8 @@
-"""main migration
+"""one more migration
 
-Revision ID: bb18605508e9
+Revision ID: 9919738e4eb5
 Revises: 
-Create Date: 2023-10-04 23:27:36.115000
+Create Date: 2023-10-10 17:27:47.719822
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'bb18605508e9'
+revision: str = '9919738e4eb5'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -24,9 +24,9 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('location', sa.String(), nullable=False),
-    sa.Column('services', sa.JSON(), nullable=True),
+    sa.Column('services', sa.JSON(), nullable=False),
     sa.Column('rooms_quantity', sa.Integer(), nullable=False),
-    sa.Column('image_id', sa.Integer(), nullable=True),
+    sa.Column('image_id', sa.Integer(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('users',
@@ -43,19 +43,19 @@ def upgrade() -> None:
     sa.Column('price', sa.Integer(), nullable=False),
     sa.Column('services', sa.JSON(), nullable=False),
     sa.Column('quantity', sa.Integer(), nullable=False),
-    sa.Column('image_id', sa.Integer(), nullable=True),
+    sa.Column('image_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['hotel_id'], ['hotels.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('bookings',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('room_id', sa.Integer(), nullable=True),
-    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('room_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('date_from', sa.Date(), nullable=False),
     sa.Column('date_to', sa.Date(), nullable=False),
     sa.Column('price', sa.Integer(), nullable=False),
-    sa.Column('total_cost', sa.Integer(), sa.Computed('(date_to - date_from) * price', ), nullable=True),
-    sa.Column('total_days', sa.Integer(), sa.Computed('date_to - date_from', ), nullable=True),
+    sa.Column('total_cost', sa.Integer(), sa.Computed('(date_to - date_from) * price', ), nullable=False),
+    sa.Column('total_days', sa.Integer(), sa.Computed('date_to - date_from', ), nullable=False),
     sa.ForeignKeyConstraint(['room_id'], ['rooms.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
