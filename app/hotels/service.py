@@ -54,7 +54,7 @@ class HotelService(BaseService):
 
         booked_hotels = (
             select(Rooms.hotel_id, func.sum(
-                Rooms.quantity - func.coalesce(booked_rooms.c.rooms_booked, 0)
+                    Rooms.quantity - func.coalesce(booked_rooms.c.rooms_booked, 0)
             ).label("rooms_left"))
             .select_from(Rooms)
             .join(booked_rooms, booked_rooms.c.room_id == Rooms.id, isouter=True)

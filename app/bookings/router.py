@@ -23,22 +23,14 @@ async def get_bookings(user: Users = Depends(get_current_user)) -> list[SBooking
 
 
 '''Добавление бронирований'''
-@router.post("", status_code=201)
+@router.post("")
 async def add_booking(
-    booking: SNewBooking,
-    background_tasks: BackgroundTasks,
+    room_id: int, date_from: date, date_to: date,
     user: Users = Depends(get_current_user),
 ):
-    booking = await BookingService.add(
-        user.id,
-        booking.room_id,
-        booking.date_from,
-        booking.date_to,
-    )
+    booking = await BookingService.add(user.id, room_id, date_from, date_to)
     if not booking:
-        raise RoomCannotBeBooked
-    booking = TypeAdapter(SNewBooking).validate_python(booking).model_dump()
-    return booking
+        raise RoomFullyBooked
 
 
 @router.delete("/{booking_id}")
