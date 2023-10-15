@@ -1,5 +1,5 @@
 from datetime import date
-from fastapi import APIRouter, BackgroundTasks, Depends, Request
+from fastapi import APIRouter, BackgroundTasks, Depends
 from pydantic import TypeAdapter
 
 from app.bookings.models import Booking
@@ -7,6 +7,7 @@ from app.bookings.schemas import SBooking, SNewBooking
 
 from app.bookings.service import BookingService
 from app.exceptions import RoomCannotBeBooked, RoomFullyBooked
+from app.tasks.tasks import send_booking_confirmation_email
 from app.users.dependecies import get_current_user
 from app.users.models import Users
 
@@ -23,14 +24,24 @@ async def get_bookings(user: Users = Depends(get_current_user)) -> list[SBooking
 
 
 '''Добавление бронирований'''
-@router.post("")
+@router.post("", status_code=201)
 async def add_booking(
-    room_id: int, date_from: date, date_to: date,
+    booking: SNewBooking,
+    background_tasks: BackgroundTasks,
     user: Users = Depends(get_current_user),
 ):
-    booking = await BookingService.add(user.id, room_id, date_from, date_to)
+    booking = await BookingService.add(
+        user.id,
+        booking.room_id,
+        booking.date_from,
+        booking.date_to,
+    )
     if not booking:
-        raise RoomFullyBooked
+        raise RoomCannotBeBooked
+    booking = TypeAdapter(SNewBooking).validate_python(booking).model_dump()
+#    send_booking_confirmation_email.delay(booking, user.email)
+    background_tasks.add_task(send_booking_confirmation_email, booking, user.email)
+    return booking
 
 
 @router.delete("/{booking_id}")

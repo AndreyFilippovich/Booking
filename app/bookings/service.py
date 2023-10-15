@@ -1,6 +1,7 @@
 from datetime import date
 
 from sqlalchemy import and_, func, insert, or_, select
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.bookings.models import Booking
 from app.exceptions import RoomFullyBooked
@@ -11,6 +12,20 @@ from app.database import engine, async_session_maker
 
 class BookingService(BaseService):
     model = Booking
+
+    @classmethod
+    async def find_all_with_images(cls, user_id: int):
+        async with async_session_maker() as session:
+            query = (
+                select(
+                    Booking.__table__.columns,
+                    Rooms.__table__.columns,
+                )
+                .join(Rooms, Rooms.id == Booking.room_id, isouter=True)
+                .where(Booking.user_id == user_id)
+            )
+            result = await session.execute(query)
+            return result.mappings().all()
 
     @classmethod
     async def add(
@@ -79,6 +94,8 @@ class BookingService(BaseService):
                 rooms_left = await session.execute(get_rooms_left)
                 rooms_left: int = rooms_left.scalar()
 
+#                logger.debug(f"{rooms_left=}")
+
                 if rooms_left > 0:
                     get_price = select(Rooms.price).filter_by(id=room_id)
                     price = await session.execute(get_price)
@@ -108,14 +125,15 @@ class BookingService(BaseService):
                     raise RoomFullyBooked
         except RoomFullyBooked:
             raise RoomFullyBooked
-#        except (SQLAlchemyError, Exception) as e:
-#            if isinstance(e, SQLAlchemyError):
-#                msg = "Database Exc: Cannot add booking"
-#            elif isinstance(e, Exception):
-#                msg = "Unknown Exc: Cannot add booking"
-#            extra = {
-#                "user_id": user_id,
-#                "room_id": room_id,
-#                "date_from": date_from,
-#                "date_to": date_to,
-#            }
+        except (SQLAlchemyError, Exception) as e:
+            if isinstance(e, SQLAlchemyError):
+                msg = "Database Exc: Cannot add booking"
+            elif isinstance(e, Exception):
+                msg = "Unknown Exc: Cannot add booking"
+            extra = {
+                "user_id": user_id,
+                "room_id": room_id,
+                "date_from": date_from,
+                "date_to": date_to,
+            }
+#            logger.error(msg, extra=extra, exc_info=True)
