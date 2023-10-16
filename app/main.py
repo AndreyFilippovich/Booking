@@ -1,14 +1,12 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
-from fastapi_cache.decorator import cache
 
-from sqladmin import Admin, ModelView
+from sqladmin import Admin
 
-#from app.admin.auth import authentication_backend
 from app.admin.views import BookingsAdmin, UsersAdmin, HotelsAdmin, RoomsAdmin
 
 from app.config import settings
@@ -18,7 +16,6 @@ from app.database import engine
 from redis import asyncio as aioredis
 
 from app.bookings.router import router as router_bookings
-from app.users.models import Users
 from app.users.router import router as router_users
 from app.hotels.router import router as router_hotels
 from app.hotels.rooms.router import router as router_rooms
@@ -26,7 +23,6 @@ from app.pages.router import router as router_pages
 from app.images.router import router as router_images
 from app.admin.auth import authentication_backend
 
-#result.mappings().all()
 
 app = FastAPI()
 

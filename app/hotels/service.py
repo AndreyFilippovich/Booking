@@ -1,7 +1,7 @@
 from datetime import date
 
 from sqlalchemy import and_, func, or_, select
-from app.bookings.models import Booking
+from app.bookings.models import Bookings
 from app.hotels.models import Hotels
 from app.hotels.rooms.models import Rooms
 from app.services.base import BaseService
@@ -34,21 +34,21 @@ class HotelService(BaseService):
         WHERE rooms_left > 0 AND location LIKE '%Алтай%';
         """
         booked_rooms = (
-            select(Booking.room_id, func.count(Booking.room_id).label("rooms_booked"))
-            .select_from(Booking)
+            select(Bookings.room_id, func.count(Bookings.room_id).label("rooms_booked"))
+            .select_from(Bookings)
             .where(
                 or_(
                     and_(
-                        Booking.date_from >= date_from,
-                        Booking.date_from <= date_to,
+                        Bookings.date_from >= date_from,
+                        Bookings.date_from <= date_to,
                     ),
                     and_(
-                        Booking.date_from <= date_from,
-                        Booking.date_to > date_from,
+                        Bookings.date_from <= date_from,
+                        Bookings.date_to > date_from,
                     ),
                 ),
             )
-            .group_by(Booking.room_id)
+            .group_by(Bookings.room_id)
             .cte("booked_rooms")
         )
 

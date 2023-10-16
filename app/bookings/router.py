@@ -2,13 +2,12 @@ from datetime import date
 from fastapi import APIRouter, BackgroundTasks, Depends
 from pydantic import TypeAdapter
 
-from app.bookings.models import Booking
 from app.bookings.schemas import SBooking, SNewBooking
 
 from app.bookings.service import BookingService
 from app.exceptions import RoomCannotBeBooked, RoomFullyBooked
 from app.tasks.tasks import send_booking_confirmation_email
-from app.users.dependecies import get_current_user
+from app.users.dependencies import get_current_user
 from app.users.models import Users
 
 router = APIRouter(

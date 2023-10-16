@@ -6,7 +6,7 @@ from starlette.responses import RedirectResponse
 
 #from app.logger import logger
 from app.users.auth import authenticate_user, create_access_token
-from app.users.dependecies import get_current_user
+from app.users.dependencies import get_current_user
 
 
 class AdminAuth(AuthenticationBackend):

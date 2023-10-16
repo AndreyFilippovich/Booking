@@ -3,7 +3,7 @@ from app.hotels.models import Hotels
 from app.hotels.rooms.models import Rooms
 
 from app.users.models import Users
-from app.bookings.models import Booking
+from app.bookings.models import Bookings
 
 
 class UsersAdmin(ModelView, model=Users):
@@ -29,7 +29,7 @@ class RoomsAdmin(ModelView, model=Rooms):
     icon = "fa-solid fa-bed"
 
 
-class BookingsAdmin(ModelView, model=Booking):
-    column_list = [c.name for c in Booking.__table__.c] + [Booking.user]
+class BookingsAdmin(ModelView, model=Bookings):
+    column_list = [c.name for c in Bookings.__table__.c] + [Bookings.user]
     name = "Бронь"
     name_plural = "Брони"

@@ -3,7 +3,7 @@ from datetime import date
 from sqlalchemy import and_, func, insert, or_, select
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.bookings.models import Booking
+from app.bookings.models import Bookings
 from app.exceptions import RoomFullyBooked
 from app.hotels.rooms.models import Rooms
 from app.services.base import BaseService
@@ -11,18 +11,18 @@ from app.database import engine, async_session_maker
 
 
 class BookingService(BaseService):
-    model = Booking
+    model = Bookings
 
     @classmethod
     async def find_all_with_images(cls, user_id: int):
         async with async_session_maker() as session:
             query = (
                 select(
-                    Booking.__table__.columns,
+                    Bookings.__table__.columns,
                     Rooms.__table__.columns,
                 )
-                .join(Rooms, Rooms.id == Booking.room_id, isouter=True)
-                .where(Booking.user_id == user_id)
+                .join(Rooms, Rooms.id == Bookings.room_id, isouter=True)
+                .where(Bookings.user_id == user_id)
             )
             result = await session.execute(query)
             return result.mappings().all()
@@ -50,18 +50,18 @@ class BookingService(BaseService):
         try:
             async with async_session_maker() as session:
                 booked_rooms = (
-                    select(Booking)
+                    select(Bookings)
                     .where(
                         and_(
-                            Booking.room_id == room_id,
+                            Bookings.room_id == room_id,
                             or_(
                                 and_(
-                                    Booking.date_from >= date_from,
-                                    Booking.date_from <= date_to,
+                                    Bookings.date_from >= date_from,
+                                    Bookings.date_from <= date_to,
                                 ),
                                 and_(
-                                    Booking.date_from <= date_from,
-                                    Booking.date_to > date_from,
+                                    Bookings.date_from <= date_from,
+                                    Bookings.date_to > date_from,
                                 ),
                             ),
                         )
@@ -101,7 +101,7 @@ class BookingService(BaseService):
                     price = await session.execute(get_price)
                     price: int = price.scalar()
                     add_booking = (
-                        insert(Booking)
+                        insert(Bookings)
                         .values(
                             room_id=room_id,
                             user_id=user_id,
@@ -110,11 +110,11 @@ class BookingService(BaseService):
                             price=price,
                         )
                         .returning(
-                            Booking.id, 
-                            Booking.user_id, 
-                            Booking.room_id,
-                            Booking.date_from,
-                            Booking.date_to,
+                            Bookings.id, 
+                            Bookings.user_id, 
+                            Bookings.room_id,
+                            Bookings.date_from,
+                            Bookings.date_to,
                         )
                     )
 
